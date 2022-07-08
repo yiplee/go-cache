@@ -48,7 +48,6 @@ func (c *Cache[T]) Set(key string, val T, opts ...OptionFunc) {
 	}
 
 	item := Item[T]{
-		Key:       key,
 		Val:       val,
 		ExpiredAt: opt.expiredAt,
 	}

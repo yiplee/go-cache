@@ -4,7 +4,6 @@ import "time"
 
 // Item represents a cache item.
 type Item[T any] struct {
-	Key       string
 	Val       T
 	ExpiredAt time.Time
 }
