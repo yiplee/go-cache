@@ -36,4 +36,18 @@ func TestCache(t *testing.T) {
 	if found || b != "" {
 		t.Errorf("Get b found value should not expired: %v", b)
 	}
+
+	if !c.Contain("a") {
+		t.Errorf("Contain a should be true")
+	}
+
+	c.Delete("a")
+	a, found = c.Get("a")
+	if found || a != "" {
+		t.Errorf("Get a found value should not exist: %v", a)
+	}
+
+	if c.Contain("a") {
+		t.Errorf("Contain a should not exist: %v", a)
+	}
 }

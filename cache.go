@@ -40,6 +40,12 @@ func (c *Cache[T]) Get(key string) (T, bool) {
 	return item.Val, true
 }
 
+// Contain check if the key cached
+func (c *Cache[T]) Contain(key string) bool {
+	_, ok := c.Get(key)
+	return ok
+}
+
 // Set sets the value for the given key.
 func (c *Cache[T]) Set(key string, val T, opts ...OptionFunc) {
 	var opt option
@@ -54,5 +60,12 @@ func (c *Cache[T]) Set(key string, val T, opts ...OptionFunc) {
 
 	c.mux.Lock()
 	c.store.Set(key, item)
+	c.mux.Unlock()
+}
+
+// Delete deletes the value for the given key.
+func (c *Cache[T]) Delete(key string) {
+	c.mux.Lock()
+	c.store.Delete(key)
 	c.mux.Unlock()
 }

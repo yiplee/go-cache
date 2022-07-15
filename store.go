@@ -8,6 +8,9 @@ type Store[T any] interface {
 
 	// Set sets the item with the given key.
 	Set(key string, item Item[T])
+
+	// Delete deletes the item with the given key.
+	Delete(key string)
 }
 
 // defaultStore returns items as the default store.
@@ -25,4 +28,8 @@ func (m items[T]) Get(key string) (Item[T], bool) {
 
 func (m items[T]) Set(key string, item Item[T]) {
 	m[key] = item
+}
+
+func (m items[T]) Delete(key string) {
+	delete(m, key)
 }
