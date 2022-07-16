@@ -12,8 +12,8 @@ type Store[T any] interface {
 	// Delete deletes the item with the given key.
 	Delete(key string)
 
-	// Keys returns a list of all keys in the store.
-	Keys() []string
+	// Each calls the given function for each item in the store.
+	Each(func(key string, item Item[T]) bool)
 }
 
 // defaultStore returns items as the default store.
@@ -37,11 +37,10 @@ func (m items[T]) Delete(key string) {
 	delete(m, key)
 }
 
-func (m items[T]) Keys() []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
+func (m items[T]) Each(fn func(key string, item Item[T]) bool) {
+	for k, v := range m {
+		if !fn(k, v) {
+			break
+		}
 	}
-
-	return keys
 }
