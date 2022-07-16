@@ -8,26 +8,26 @@ import (
 )
 
 // NewWithStore returns a new Cache with the given store.
-func NewWithStore[T any](store Store[T]) *Cache[T] {
-	return &Cache[T]{
+func NewWithStore[K comparable, T any](store Store[K, T]) *Cache[K, T] {
+	return &Cache[K, T]{
 		store: store,
 	}
 }
 
 // New returns a new Cache with the default store.
-func New[T any]() *Cache[T] {
-	return NewWithStore(defaultStore[T]())
+func New[K comparable, T any]() *Cache[K, T] {
+	return NewWithStore(defaultStore[K, T]())
 }
 
 // Cache represents a cache.
-type Cache[T any] struct {
-	store Store[T]
+type Cache[K comparable, T any] struct {
+	store Store[K, T]
 	mux   sync.RWMutex
 }
 
 // Get returns the value for the given key.
 // If the value is not found, the second argument will be false.
-func (c *Cache[T]) Get(key string) (T, bool) {
+func (c *Cache[K, T]) Get(key K) (T, bool) {
 	c.mux.RLock()
 	item, found := c.store.Get(key)
 	c.mux.RUnlock()
@@ -41,13 +41,13 @@ func (c *Cache[T]) Get(key string) (T, bool) {
 }
 
 // Contain check if the key cached
-func (c *Cache[T]) Contain(key string) bool {
+func (c *Cache[K, T]) Contain(key K) bool {
 	_, ok := c.Get(key)
 	return ok
 }
 
 // Set sets the value for the given key.
-func (c *Cache[T]) Set(key string, val T, opts ...OptionFunc) {
+func (c *Cache[K, T]) Set(key K, val T, opts ...OptionFunc) {
 	var opt option
 	for _, fn := range opts {
 		fn(&opt)
@@ -64,16 +64,16 @@ func (c *Cache[T]) Set(key string, val T, opts ...OptionFunc) {
 }
 
 // Delete deletes the value for the given key.
-func (c *Cache[T]) Delete(key string) {
+func (c *Cache[K, T]) Delete(key K) {
 	c.mux.Lock()
 	c.store.Delete(key)
 	c.mux.Unlock()
 }
 
 // Keys returns a list of all keys in the cache.
-func (c *Cache[T]) Keys() []string {
-	var keys []string
-	c.Each(func(key string, _ T) bool {
+func (c *Cache[K, T]) Keys() []K {
+	var keys []K
+	c.Each(func(key K, _ T) bool {
 		keys = append(keys, key)
 		return true
 	})
@@ -82,9 +82,9 @@ func (c *Cache[T]) Keys() []string {
 }
 
 // Each iterates over all items in the cache.
-func (c *Cache[T]) Each(fn func(key string, val T) bool) {
+func (c *Cache[K, T]) Each(fn func(key K, val T) bool) {
 	c.mux.RLock()
-	c.store.Each(func(key string, item Item[T]) bool {
+	c.store.Each(func(key K, item Item[T]) bool {
 		if item.IsValid() {
 			return fn(key, item.Val)
 		}

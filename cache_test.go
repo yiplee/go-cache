@@ -6,7 +6,7 @@ import (
 )
 
 func TestCache(t *testing.T) {
-	c := New[string]()
+	c := New[string, string]()
 
 	a, found := c.Get("a")
 	if found || a != "" {
@@ -41,6 +41,10 @@ func TestCache(t *testing.T) {
 		t.Errorf("Contain a should be true")
 	}
 
+	if expect, got := 1, len(c.Keys()); expect != got {
+		t.Errorf("Keys should be %v, got %v", expect, got)
+	}
+
 	c.Delete("a")
 	a, found = c.Get("a")
 	if found || a != "" {
@@ -49,5 +53,9 @@ func TestCache(t *testing.T) {
 
 	if c.Contain("a") {
 		t.Errorf("Contain a should not exist: %v", a)
+	}
+
+	if expect, got := 0, len(c.Keys()); expect != got {
+		t.Errorf("Keys should be %v, got %v", expect, got)
 	}
 }
