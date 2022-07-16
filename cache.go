@@ -69,3 +69,24 @@ func (c *Cache[T]) Delete(key string) {
 	c.store.Delete(key)
 	c.mux.Unlock()
 }
+
+// Keys returns a list of all keys in the cache.
+func (c *Cache[T]) Keys() []string {
+	c.mux.RLock()
+	keys := c.store.Keys()
+	c.mux.RUnlock()
+	return keys
+}
+
+// Iter iterates over all items in the cache.
+func (c *Cache[T]) Iter(fn func(key string, val T) error) error {
+	for _, key := range c.Keys() {
+		if val, ok := c.Get(key); ok {
+			if err := fn(key, val); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
